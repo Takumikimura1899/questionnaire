@@ -9,15 +9,15 @@ import {
 } from '@material-ui/core';
 import Head from 'next/head';
 import Image from 'next/image';
-import { FormEvent } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import styles from '../styles/Home.module.css';
 
 interface IFormInputs {
   name: string;
-  birth: number | null;
-  isLearning: boolean | null;
-  wasLearning: boolean | null;
+  birth: number | null | '';
+  isLearning: string;
+  wasLearning: string;
   language: string;
 }
 
@@ -28,16 +28,21 @@ export default function Home() {
     formState: { errors },
     control,
     watch,
-  } = useForm<IFormInputs>();
+    reset,
+  } = useForm<IFormInputs>({
+    defaultValues: {
+      name: '',
+      birth: '',
+      isLearning: '',
+      wasLearning: '',
+      language: '',
+    },
+  });
 
   const onSubmit: SubmitHandler<IFormInputs> = (data) => {
     console.log(data);
+    reset();
   };
-
-  const isLearningLanguage = watch('isLearning');
-  const wasLearningLanguage = watch('wasLearning');
-  console.log(isLearningLanguage);
-  console.log(wasLearningLanguage);
 
   return (
     <>
@@ -49,7 +54,6 @@ export default function Home() {
             <Controller
               name='name'
               control={control}
-              defaultValue=''
               rules={{ required: true }}
               render={({ field: { onChange, value } }) => (
                 <Input onChange={onChange} value={value} />
@@ -65,7 +69,7 @@ export default function Home() {
               control={control}
               rules={{ required: true, pattern: /^[0-9]{8}$/ }}
               render={({ field: { onChange, value } }) => (
-                <Input onChange={onChange} value={value} />
+                <Input type='number' onChange={onChange} value={value} />
               )}
             />
             {errors.birth && <span>このフィールドは回答必須です。</span>}
@@ -113,10 +117,12 @@ export default function Home() {
             {errors.wasLearning && <span>このフィールドは回答必須です。</span>}
           </div>
 
-          {(isLearningLanguage || wasLearningLanguage) && (
+          {(watch('isLearning') === 'true' ||
+            watch('wasLearning') === 'true') && (
             <div>
               <label htmlFor='language'>
-                Q5 これまでに学んだことのある言語を入力してください。
+                Q5 *Q3・Q4ではいと答えた方へ
+                これまでに学んだことのある言語を入力してください。
               </label>
               <Controller
                 name='language'
