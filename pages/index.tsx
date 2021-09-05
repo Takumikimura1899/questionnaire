@@ -6,11 +6,18 @@ import {
   FormControl,
   FormControlLabel,
   FormLabel,
+  InputLabel,
+  FormHelperText,
+  TextField,
 } from '@material-ui/core';
 import Head from 'next/head';
 import Image from 'next/image';
-import { FormEvent, useEffect, useState } from 'react';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import {
+  useForm,
+  Controller,
+  SubmitHandler,
+  useFormState,
+} from 'react-hook-form';
 import styles from '../styles/Home.module.css';
 
 interface IFormInputs {
@@ -46,96 +53,181 @@ export default function Home() {
 
   return (
     <>
-      <Container>
+      <Container maxWidth='lg'>
         <h1>プログラミングに関するアンケート</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor='name'>Q1. 名前を入力してください。</label>
-            <Controller
-              name='name'
-              control={control}
-              rules={{ required: true }}
-              render={({ field: { onChange, value } }) => (
-                <Input onChange={onChange} value={value} />
-              )}
-            />
-            {errors.name && <span>このフィールドは回答必須です。</span>}
-          </div>
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: true }}
+            render={({ field: { onChange, value }, formState: { errors } }) => (
+              <FormControl>
+                <FormLabel htmlFor='name'>
+                  Q1. 名前を入力してください。
+                </FormLabel>
+                {errors.name ? (
+                  <TextField
+                    error
+                    id='name'
+                    type='text'
+                    label='例:田中 太郎'
+                    onChange={onChange}
+                    value={value}
+                    helperText='Incorrect entry.'
+                  />
+                ) : (
+                  <TextField
+                    id='name'
+                    type='text'
+                    label='例:田中 太郎'
+                    onChange={onChange}
+                    value={value}
+                  />
+                )}
+              </FormControl>
+            )}
+          />
 
           <div>
-            <label htmlFor='birth'>Q2. 生年月日を入力してください。</label>
             <Controller
               name='birth'
               control={control}
               rules={{ required: true, pattern: /^[0-9]{8}$/ }}
-              render={({ field: { onChange, value } }) => (
-                <Input type='number' onChange={onChange} value={value} />
+              render={({
+                field: { onChange, value },
+                formState: { errors },
+              }) => (
+                <FormControl>
+                  <FormLabel htmlFor='birth'>
+                    Q2. 生年月日を入力してください。
+                  </FormLabel>
+                  {errors.birth ? (
+                    <TextField
+                      error
+                      type='number'
+                      id='birth'
+                      label='例:19990106(8桁の数字)'
+                      onChange={onChange}
+                      value={value}
+                      helperText='Incorrect entry.'
+                    />
+                  ) : (
+                    <TextField
+                      type='number'
+                      id='birth'
+                      label='例:19990106(8桁の数字)'
+                      onChange={onChange}
+                      value={value}
+                    />
+                  )}
+                </FormControl>
               )}
             />
-            {errors.birth && <span>このフィールドは回答必須です。</span>}
           </div>
 
           <div>
-            <span>Q3. 現在プログラミングを学習していますか？</span>
-            <input
-              id='isLearning1'
-              {...register('isLearning', { required: true })}
+            <Controller
               name='isLearning'
-              type='radio'
-              value='true'
+              control={control}
+              rules={{ required: true }}
+              render={({
+                field: { onChange, value },
+                formState: { errors },
+              }) => (
+                <FormControl component='fieldset'>
+                  <FormLabel component='legend'>
+                    Q3. 現在プログラミングを学習していますか？
+                    {errors.isLearning && <p>このフィールドは回答必須です。</p>}
+                  </FormLabel>
+                  <RadioGroup
+                    aria-label='isLearning'
+                    value={value}
+                    onChange={onChange}
+                  >
+                    <FormControlLabel
+                      value='true'
+                      control={<Radio />}
+                      label='はい'
+                    />
+                    <FormControlLabel
+                      value='false'
+                      control={<Radio />}
+                      label='いいえ'
+                    />
+                  </RadioGroup>
+                </FormControl>
+              )}
             />
-            <label htmlFor='isLeaning1'>はい</label>
-            <input
-              id='isLearning2'
-              {...register('isLearning', { required: true })}
-              name='isLearning'
-              type='radio'
-              value='false'
-            />
-            <label htmlFor='isLeaning2'>いいえ</label>
-            {errors.isLearning && <span>このフィールドは回答必須です。</span>}
           </div>
 
           <div>
-            <span>Q4. これまでにプログラミングを学習したことがありますか?</span>
-            <input
-              id='wasLearning1'
-              {...register('wasLearning', { required: true })}
+            <Controller
               name='wasLearning'
-              type='radio'
-              value='true'
+              control={control}
+              rules={{ required: true }}
+              render={({
+                field: { onChange, value },
+                formState: { errors },
+              }) => (
+                <FormControl component='fieldset'>
+                  <FormLabel component='legend'>
+                    Q4. これまでにプログラミングを学習したことがありますか?
+                    {errors.wasLearning && (
+                      <p>このフィールドは回答必須です。</p>
+                    )}
+                  </FormLabel>
+                  <RadioGroup
+                    aria-label='wasLearning'
+                    value={value}
+                    onChange={onChange}
+                  >
+                    <FormControlLabel
+                      value='true'
+                      control={<Radio />}
+                      label='はい'
+                    />
+                    <FormControlLabel
+                      value='false'
+                      control={<Radio />}
+                      label='いいえ'
+                    />
+                  </RadioGroup>
+                </FormControl>
+              )}
             />
-            <label htmlFor='wasLeaning1'>はい</label>
-            <input
-              id='wasLearning2'
-              {...register('wasLearning', { required: true })}
-              name='wasLearning'
-              type='radio'
-              value='false'
-            />
-            <label htmlFor='wasLeaning2'>いいえ</label>
-            {errors.wasLearning && <span>このフィールドは回答必須です。</span>}
           </div>
 
           {(watch('isLearning') === 'true' ||
             watch('wasLearning') === 'true') && (
             <div>
-              <label htmlFor='language'>
-                Q5 *Q3・Q4ではいと答えた方へ
-                これまでに学んだことのある言語を入力してください。
-              </label>
               <Controller
                 name='language'
                 control={control}
-                render={({ field: { onChange, value } }) => (
-                  <Input onChange={onChange} value={value} />
+                rules={{ required: true }}
+                render={({
+                  field: { onChange, value },
+                  formState: { errors },
+                }) => (
+                  <FormControl component='fieldset'>
+                    <FormLabel htmlFor='language'>
+                      Q5. (Q3 または Q4ではいと答えた方へ)
+                      <br />
+                      これまでに学んだことのある言語を入力してください。
+                      {errors.language && <p>このフィールドは回答必須です。</p>}
+                    </FormLabel>
+                    <TextField
+                      id='language'
+                      label='これまでに学んだ事のある言語'
+                      onChange={onChange}
+                      value={value}
+                    />
+                  </FormControl>
                 )}
               />
-              {errors.birth && <span>このフィールドは回答必須です。</span>}
             </div>
           )}
 
-          <input type='submit' value='アンケートを提出する' />
+          <Input type='submit' value='アンケートを提出する' />
         </form>
       </Container>
     </>
