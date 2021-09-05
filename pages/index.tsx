@@ -1,3 +1,5 @@
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from './api/firebase';
 import {
   Container,
   Input,
@@ -46,11 +48,15 @@ export default function Home() {
     },
   });
 
-  const onSubmit: SubmitHandler<IFormInputs> = (data) => {
+  const onSubmit: SubmitHandler<IFormInputs> = async (data) => {
     console.log(data);
-    reset();
+    try {
+      await addDoc(collection(db, 'answers'), data);
+      reset();
+    } catch (e) {
+      console.error('error', e);
+    }
   };
-
   return (
     <>
       <Container maxWidth='lg'>
